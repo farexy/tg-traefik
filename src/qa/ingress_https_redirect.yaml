@@ -1,0 +1,45 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware 
+metadata:
+  name: redirect-https-middleware
+  namespace: traefik-v2
+spec:
+  redirectScheme:
+    scheme: https
+    permanent: true
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: redirect-https-api
+  namespace: traefik-v2
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`qa-api.bizprotect.org`)
+      kind: Rule 
+      services:
+        - name: traefik
+          port: 80
+      middlewares:
+        - name: redirect-https-middleware
+          namespace: traefik-v2
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: redirect-https-ui
+  namespace: traefik-v2
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`qa-ui.bizprotect.org`)
+      kind: Rule 
+      services:
+        - name: traefik
+          port: 80
+      middlewares:
+        - name: redirect-https-middleware
+          namespace: traefik-v2

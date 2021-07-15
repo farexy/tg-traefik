@@ -1,0 +1,50 @@
+image:
+  name: traefik
+  tag: 2.2.8
+
+deployment:
+  enabled: true
+  replicas: 1
+  
+# only one traefik pod per node
+affinity: 
+  podAntiAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+    - labelSelector:
+        matchExpressions:
+        - key: app.kubernetes.io/name
+          operator: In
+          values:
+          - traefik
+      topologyKey: failure-domain.beta.kubernetes.io/zone
+      
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 2
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      targetAverageUtilization: 75
+  - type: Resource
+    resource:
+      name: memory
+      targetAverageUtilization: 75
+
+nodeSelector:
+  pool: services
+  kubernetes.io/role: agent
+  beta.kubernetes.io/os: linux
+  type: virtual-kubelet
+
+tolerations:
+  - key: "ServicesOnly"
+    operator: "Exists"
+    effect: "NoSchedule"
+  - key: "virtual-kubelet.io/provider"
+    operator: "Exists"
+
+tls:
+  stores:
+    default: {}

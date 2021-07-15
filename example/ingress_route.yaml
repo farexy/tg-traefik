@@ -1,0 +1,17 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: ingressroutenginxsample
+  namespace: example-traefik-v2
+spec:
+  entryPoints:
+    - websecure
+  routes:
+  - match: Path(`/`)
+    kind: Rule
+    services:
+    - name: nginxsample
+      namespace: example-traefik-v2
+      port: 80
+  tls:
+    secretName: dev-api-cert
