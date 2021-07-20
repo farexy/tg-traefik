@@ -14,7 +14,7 @@ Prerequisites:
 - helm v3.x
 
 To install traefik as ingress provider you need:
-1. Configure kubectl to use your AKS cluster (in my example cluster is named `eastus-dev-flow-cluster` and resource group is `ASG.Development.Flow`)
+1. Configure kubectl to use your AKS cluster 
 ```
 RG=tg-dev
 AKS=eastus2-dev-tg-cluster
@@ -27,12 +27,10 @@ az aks get-credentials --resource-group $RG --name $AKS
 
 Please, check files encoding before usage - they should be in UTF-8 (**without** BOM); otherwise, they won't be parsed properly. Name the certificate files as _tls.crt_ and key as _tls.key_, respectively.
 
-The current dev and QA env cert files are located at [dev-qa-flow-cert.zip](/.attachments/dev-qa-flow-cert-e8507e00-69db-4250-9035-23414e6127c3.zip). Production cert files will be added once the env is set up.
-
 3. Create the Kubernetes secret to store the certificate.
 ```
 kubectl create ns $INGRESS_NAMESPACE
-kubectl create secret generic dev-api-cert --from-file=fullchain.pem=src/fullchain.pem --from-file=privkey.pem=src/privkey.pem -n $INGRESS_NAMESPACE
+kubectl create secret generic dev-api-cert --from-file=tls.crt=src/dev/fullchain.crt --from-file=tls.key=src/dev/privkey.key -n $INGRESS_NAMESPACE
 ```
 Here we use _dev-api-cert_ name. Note that **the certificate, TLS Store (see p. 6) and Ingress service must be located in the same namespace**, while dedicated routes for specific services should be located in services' namespaces (see https://github.com/kubernetes/kubernetes/issues/17088).
 
@@ -52,7 +50,6 @@ helm install --namespace=$INGRESS_NAMESPACE traefik traefik/traefik
 
 6. Configure the default TLS Store to hold the certificate from p. 3.
 
-Go to the [src folder](https://dev.azure.com/ASGINC/FlowV2/_git/FlowV2.traefik?path=%2Fsrc) and execute the following command:
 ```
 kubectl apply -f ./src/dev/tls_store.yaml
 ```
@@ -62,11 +59,10 @@ If your certificate secret name differs from _dev-api-cert_ (e.g. for another en
 
 7. Add HTTP to HTTPS redirection.
 
-Go to the [src folder](https://dev.azure.com/ASGINC/FlowV2/_git/FlowV2.traefik?path=%2Fsrc) and execute the following command:
 ```
 kubectl apply -f ./src/dev/ingress_https_redirect.yaml
 ```
-If you're performing the setup for hosts other than dev-api.bizprotect.org for APIs and dev-ui.bizprotect.org for UI (e.g. for another environment), just update the _ingress_https_redirect.yaml_ to use it before applying. Then wait for a few seconds. Now http://dev-api.bizprotect.org/ should redirect to https://dev-api.bizprotect.org/, http://dev-ui.bizprotect.org/ should redirect to https://dev-ui.bizprotect.org/, and both should provide your certificate to the client (if you chose other domain, please use the one you've specified in configuration).
+If you're performing the setup for hosts other than dev-tg-api.somniumgame.com for APIs and dev-ui.bizprotect.org for UI (e.g. for another environment), just update the _ingress_https_redirect.yaml_ to use it before applying. Then wait for a few seconds. Now http://dev-tg-api.somniumgame.com/ should redirect to https://dev-tg-api.somniumgame.com/, and should provide your certificate to the client (if you chose other domain, please use the one you've specified in configuration).
 
 8. Get load balancer's external IP:
 ```
