@@ -1,5 +1,6 @@
 # Introduction 
-This repo contains traefik ingress helm chart configuration for flow-v2 cluster.
+This repo contains traefik ingress helm chart configuration for tg k8s cluster.
+To update tls certificate, execute please refer to steps 1-3
 
 ## Docs
 https://github.com/traefik/traefik-helm-chart
@@ -7,11 +8,13 @@ https://github.com/traefik/traefik-helm-chart
 **_NB:_** this guide uses dev env as an example - please, **change the Resource Group and Azure Kubernetes Cluster names according to the environment you want to modify, as well as certificate secret name** (_%env_name%-api-cert_). 
 
 Most of the configuration is done via [this guide](https://docs.traefik.io/getting-started/install-traefik/#use-the-helm-chart).
-Prerequisites:
+
+## Prerequisites:
 - bash/zsh/other POSIX-compatible shell
-- azure CLI authorized for resource group where your cluster located
+- azure CLI https://docs.microsoft.com/en-us/cli/azure/install-azure-cli
+- kubectl https://kubernetes.io/docs/tasks/tools/install-kubectl-windows/
 - existing AKS cluster
-- helm v3.x
+- helm v3.x (only for traefik instalation) https://helm.sh/docs/intro/install/
 
 To install traefik as ingress provider you need:
 1. Configure kubectl to use your AKS cluster 
